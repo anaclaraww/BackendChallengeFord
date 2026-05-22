@@ -1,0 +1,6 @@
+@BackendChallengeFord_HostAddress = http://localhost:5087
+
+GET {{BackendChallengeFord_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
