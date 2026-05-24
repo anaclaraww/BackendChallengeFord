@@ -1,8 +1,8 @@
-# BackendChallengeFord
+# BackendChallengeFord - V1.0.1
 
 ## Descrição do Projeto
 
-O **Ford Connect** é uma plataforma web desenvolvida em **ASP.NET Core 8 com MySQL**, destinada a proprietários de veículos Ford. A plataforma permite que clientes visualizem métricas de seus veículos, registrem manutenções realizadas e acumulem pontos em um programa de fidelidade integrado. O backend expõe uma **API REST** consumida por um frontend React, com autenticação baseada em JWT e arquitetura em camadas (Controllers → Services → Repositories).
+O **Ford Connect** é uma plataforma web desenvolvida em **ASP.NET Core 8 com MySQL**, destinada a proprietários de veículos Ford. A plataforma permite que clientes visualizem métricas de seus veículos, registrem manutenções realizadas e acumulem pontos em um programa de fidelidade integrado. O backend expõe uma **API REST** que futuramente será consumida por uma aplicação React TS, com autenticação baseada em JWT e arquitetura em camadas (Controllers ⇢ Services ⇢ Repositories).
 
 Este documento apresenta as medidas de segurança implementadas no backend, organizadas pelos critérios de avaliação do Sprint de Cybersecurity.
 
@@ -217,9 +217,16 @@ private string ComputeHmac(string data) {
 
 O `SecurityHeadersMiddleware` adiciona headers de proteção em todas as respostas e remove informações sobre a tecnologia usada no servidor:
 
-| Header | Valor | Proteção |
-|---|---|---|
-
+```csharp
+ context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+ context.Response.Headers["X-Frame-Options"] = "DENY";
+ context.Response.Headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains";
+ context.Response.Headers.Remove("Server");
+ context.Response.Headers.Remove("X-Powered-By");
+ context.Response.Headers["X-Powered-By"] = "";
+ context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+ context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
+```
 
 ---
 
@@ -227,7 +234,7 @@ O `SecurityHeadersMiddleware` adiciona headers de proteção em todas as respost
 
 ### Criptografia de Senhas em Repouso
 
-Senhas nunca são armazenadas em texto plano. O algoritmo **BCrypt** com work factor 12 é utilizado, tornando ataques de força bruta computacionalmente inviáveis:
+Senhas nunca são armazenadas em plaintext. O algoritmo **BCrypt** com work factor 12 é utilizado, tornando ataques de força bruta computacionalmente inviáveis:
 
 ```csharp
  AuthService.cs
@@ -323,7 +330,7 @@ _logger.LogInformation("[Info] Login bem-sucedido — ClienteId={Id}", cliente.I
 
 ---
 
-## Sumário das Implementações
+## Sumário dos requisitos implementados 
 
 | Categoria | Implementação | Arquivo |
 |---|---|---|
